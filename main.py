@@ -113,7 +113,7 @@ class DatabaseConnector:
     def upload_orders_to_db(self, orders_df, db_creds):
         local_engine = create_engine(f"{db_creds['LOCAL_DATABASE_TYPE']}+{db_creds['LOCAL_DB_API']}://{db_creds['LOCAL_USER']}:{db_creds['LOCAL_PASSWORD']}@{db_creds           ['LOCAL_HOST']}:{db_creds['LOCAL_PORT']}/{db_creds['LOCAL_DATABASE']}")
         local_engine.connect()
-        orders_table =orders_df.to_sql(orders_df, 'orders_table', local_engine, if_exists='replace')    
+        orders_df.to_sql(orders_df, 'orders_table', local_engine, if_exists='replace')    
         
 if __name__ == '__main__':  
    dc = DatabaseConnector('db_creds.yaml')
@@ -125,7 +125,7 @@ if __name__ == '__main__':
    #dcl.clean_user_data(["dim_users"])
    orders_data=dext.read_rds_table('orders_table', con) 
    new_df = dcl.clean_orders_data(orders_data)
-   dc.upload_orders_to_db(new_df, creds)
+   dc.upload_orders_to_db(new_df, 'orders_table', creds)
    #DatabaseConnector('db_creds.yaml').run_methods()
    #dc.upload_to_db_as_dim_users('dim_users', 'engine_yaml')  
   

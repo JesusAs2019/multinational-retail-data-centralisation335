@@ -24,7 +24,7 @@ from pandasgui import show
 
 class DataCleaning:
       def __init__(self) -> None:
-         # self.data_frame = data_frame  
+         # self.date_df = date_df  
           pass
       def clean_user_data(self):        
           df_users().replace('NULL', np.NaN)
@@ -123,89 +123,61 @@ class DataCleaning:
           self.df_bucket['category'] = self.df_bucket['category'].astype('category')
           return self.df_bucket
         
- 
-
-     # def clean_orders_data(self, df_S3):                                
-        #  df_S3.drop(columns='1',inplace=True)  
-        #  df_S3.drop(columns='first_name',inplace=True)  
-         # df_S3.drop(columns='last_name',inplace=True)  
-         # df_S3['card_number'] = df_S3['card_number'].apply(self.isDigits)  
-         # df_S3.dropna(how='any', inplace= True)   
-          #return df_S3
-          #cleaned_orders_table = dcl.clean_order_data(df_S3)
+          #cleaned_orders_table = dcl.clean_order_data(date_df)
           #cleaned_orders_table.to_csv('orders.csv')
-          #dc.upload_to_db(cleaned_orders_table, "df_S3", db_creds) 
-  
-
-      def clean_date_time(self, table_name):
-          self.table_name = self.df_S3
-          self.df_S3['month'] = pd.to_numeric( self.df_S3['month'],errors='coerce', downcast="integer")
-          self.df_S3['year'] = pd.to_numeric(self.df_S3['year'], errors='coerce', downcast="integer")
-          self.df_S3['day'] = pd.to_numeric(self.df_S3['day'], errors='coerce', downcast="integer")
-          self.df_S3['timestamp'] = pd.to_datetime(self.df_S3['timestamp'], format='%H:%M:%S', errors='coerce')
-          self.df_S3.dropna(how='any',inplace= True)
-          new_df_S3 = self.df_S3.reset_index(inplace=True)
-          return new_df_S3           # 6 - upload_to_db('dim_date_times')                             
-       
+          #dc.upload_to_db(cleaned_orders_table, "date_df", db_creds) 
        
          # This method removes some columns and dropped NaN values
-      def clean_orders_data(self, data_frame):
-          self.data_frame = data_frame         
-          data_frame.drop(["level_0", "first_name", "last_name", "1", "index"], axis=1, inplace=True )
-          data_frame.dropna(how='any', axis=1)
-          return data_frame                                                             # 5 - upload_to_db('orders_table')
-          
-          
-          #self.cleaning_orders_obj = self.dcl.cleaning_orders_data('dfo')
-          #if hasattr(self.cleaning_orders_data, 'dfo'):
-           #  print(f"{self.cleaning_orders_data.dfo}")
-          #else:
-           #   print("dfo attribute does not exist.")
+      #def clean_orders_data(self, data_frame):
+        #  self.data_frame = date_df         
+         # data_frame.drop(["level_0", "first_name", "last_name", "1", "index"], axis=1, inplace=True )
+        #  data_frame.dropna(how='any', axis=1)
+         # return data_frame            # 5 - upload_to_db('orders_table')
         
-       
-       
-      #@staticmethod
-      #def clean_orders_data(dfo):
-          #new_dfo = dfo
-          #new_dfo = new_dfo.drop(columns=['level_0', 'first_name', 'last_name', '1'], axis=1, inplace=True)
-        # Returning the longest length
-         # print(new_dfo[[144]])
-         # return new_dfo
-      
-      
-      
-      
-      
-        
-          #This method cleanse sales_date_df file 
-     # def clean_sales_date(self):
-        #  self.sales_date_df['time_period'] = self.sales_date_df['time_period'].astype('category')
-          #self.sales_date_df = self.sales_date_df.dropna(how='any').dropna(how='any',axis=1)
-         # self.sales_date_df = self.sales_date_df.drop_duplicates()
-          #self.sales_date_df.update(self.sales_date_df)
-         #return self.sales_date_df
-          # engine = DatabaseConnector.init_db_engine(self, creds)
-         # data_frame = DataExtractor(engine).read_rds_tables(table_name) 
+      def clean_date_details(self, date_df):
+          self.date_df = date_df
+          self.date_df['month'] = pd.to_numeric( self.date_df['month'],errors='coerce', downcast="integer")
+          self.date_df['year'] = pd.to_numeric(self.date_df['year'], errors='coerce', downcast="integer")
+          self.date_df['day'] = pd.to_numeric(self.date_df['day'], errors='coerce', downcast="integer")
+          self.date_df['timestamp'] = pd.to_datetime(self.date_df['timestamp'], format='%H:%M:%S', errors='coerce')
+          self.date_df.dropna(how='any', inplace= True)
+          new_date_df = self.date_df.reset_index(inplace=True)
+          return new_date_df           # 6 - upload_to_db('dim_date_times')                             
+               
  
 if __name__ == '__main__': 
    #dict=upload_to_db('dim_date_times')  
    dc = DatabaseConnector('yaml_file')
    dext = DataExtractor() 
    dcl = DataCleaning()
-  
    creds = dext.read_creds('db_creds.yaml')
    con = dext.init_db_engine(creds)
   # dim_users = dext.read_rds_table('legacy_users', con)
    #dcl.clean_user_data(["dim_users"])
-   orders_data=dext.read_rds_table('orders_table', con) 
-   new_df = dcl.clean_orders_data(orders_data)
-   print(new_df)
-   display(new_df)
+   #orders_data=dext.read_rds_table('orders_table', con) 
+   #new_df = dcl.clean_orders_data(orders_data)
+   #print(new_df)
+   #display(new_df)
+   #pd.set_option('display.max_columns', None)
+   
+#calling the clean_date_details
+   date_data = dext.extract_from_s3('date_details')
+   new_date_df = dcl.clean_date_details(date_data)
+   print(new_date_df)
+   display(new_date_df)
    pd.set_option('display.max_columns', None)
-  
-  
-  
-  
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   #df_date_details =          #dc.extract_date_details_from_s3_link()
+   #clean_df_date_details = dcl.clean_date_time(df_date_details)
+#self.upload_to_db(cleaned_df_date_details, 'dim_date_times', engine)
    
    #print(table(cleaned_orders, headers = 'keys', tablefmt = 'psql'))
    # print(dim_users)
@@ -213,53 +185,6 @@ if __name__ == '__main__':
    
    
    
-   
-    #Connects to the database, extracts the data from the relational database on AWS, cleans the data and uploads the data to the db
-   # db_creds = connector.read_db_creds()
-   # engine = connector.init_db_engine(db_creds)
-   # table_names = connector.list_db_tables(engine)
-   # legacy_users_table = extractor.read_rds_table(table_names, 'legacy_users', engine)
-   # clean_legacy_users_table = cleaner.clean_user_data(legacy_users_table)
-    #clean_legacy_users_table.to_csv('users.csv')
-    #connector.upload_to_db(clean_legacy_users_table, "dim_users", db_creds)
-
-    #Extracts data from pdf, cleans the data and uploads the df to the db
-   # card_data_table = extractor.retrieve_pdf_data('https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf')
-   # card_data_table.to_csv('card_details.csv')
-   # clean_card_data_table = cleaner.clean_card_data(card_data_table)
-    #clean_card_data_table.to_csv('card_data.csv')
-   #connector.upload_to_db(clean_card_data_table, "dim_card_details", db_creds)
-
-
-    # Extracts, cleans and uploads store data to db
-    #api_key = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
-    #number_stores_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
-   #retrieve_store_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/'
-   # number_stores = extractor.list_number_of_stores(number_stores_endpoint, api_key)
-   # store_data = extractor.retrieve_stores_data(number_stores, retrieve_store_endpoint, api_key)
-   # store_data.to_csv('store_outputs.csv')
-   # clean_store_data_table = cleaner.clean_store_data(store_data)
-   # clean_store_data_table.to_csv('store_outputs.csv')
-    #connector.upload_to_db(clean_store_data_table, "dim_store_details", db_creds)
-
-
-    # Extracts the product data
-   # product_data = extractor.extract_from_s3('s3://data-handling-public/products.csv')
-   #cleaned_product_data = cleaner.clean_product_data(product_data)
-    #cleaned_product_data.to_csv('product.csv')
-    #connector.upload_to_db(cleaned_product_data, 'dim_products', db_creds)
-
-    # Order table data
-   # clean_orders_table = cleaner.clean_order_data(orders_table)
-    #clean_orders_table.to_csv('orders.csv')
-    #connector.upload_to_db(clean_orders_table, "orders_table", db_creds)
-
-    #Date data
-    #date_data = extractor.extract_from_s3('https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json')
-   #clean_date_data = cleaner.clean_date_data(date_data)
-    #clean_date_data.to_csv('date.csv')
-    #connector.upload_to_db(clean_date_data, "dim_date_times", db_creds)
-  
 
    
           

@@ -123,16 +123,19 @@ class DataExtractor:
  
     #Task8 The final source of data is a JSON file, orders_table S3_link     
     def extract_from_s3_link(self, url):
-        self.url = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
-        response = requests.get(url)
-        dict = response.json()
-        df_S3 = pd.DataFrame([])
-        for column_name in dict.keys():
-            value_list = []
-            for _ in dict[column_name].keys():
-                value_list.append(dict[column_name][_])
-            df_S3[column_name] = value_list
-        return df_S3  # 6 - upload_to_db('dim_date_times')
+       self.url = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
+       self.df=pd.read_json(url)
+       return self.df
+   
+    #    response = requests.get(url)
+      #  dict = response.json()
+        #date_details_df = pd.DataFrame([])
+        #for column_name in dict.keys():
+          #  value_list = []
+            #for _ in dict[column_name].keys():
+              #  value_list.append(dict[column_name][_])
+           # date_details_df[column_name] = value_list
+        #return date_details_df  # 6 - upload_to_db('dim_date_times')
  
 
 if __name__ == '__main__': 
@@ -144,12 +147,12 @@ if __name__ == '__main__':
    #print(df_users)
    #show(df_users)
    
-   dfo = dext.read_rds_table('orders_table', con)
+   #dfo = dext.read_rds_table('orders_table', con)
    
    #print(tabula(dfo, headers = 'keys', tablefmt = 'psql')) 
    #print(dfo)
    #show(dfo)
-   dfc = dext.retrieve_pdf_data('https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf')
+   #dfc = dext.retrieve_pdf_data('https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf')
    #print(dfc.head())
    #print(dfc.info())
    #display(df)
@@ -163,8 +166,9 @@ if __name__ == '__main__':
    #data = dext.extract_from_s3('s3://data-handling-public/products.csv')
    #print(data)   
    #db.to_csv('dim_store_details.csv')
-  # df_S3 = dext.extract_from_s3_link('https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json')
-   #print(df_S3)
+   date_details_df = dext.extract_from_s3_link('https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json')
+   print(date_details_df)
+   pd.set_option('display.max_columns', None)
    def main():
        dict.list_db_tables()
        main()
