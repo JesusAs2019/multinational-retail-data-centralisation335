@@ -1,4 +1,5 @@
-MILESTONE 3:
+MILESTONE 3: CREATING THE DAFTABASE SCHEMA
+
 --- Task 1: Casting the column of the orders_table to the correct data types
 
 SELECT length(max(cast(card_number as Text)))

@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-# multinational-retail-data-centralisation33
+multinational-retail-data-centralisation33_PROJECT
 =======
 
 ---
@@ -92,7 +92,7 @@ Step 3:
 Finally, to clean each data from all the sources a script named data_cleaning.py containing a class DataCleaning with its cleaning methods were created.
 
 
-##6. [Data Proccessing](#data-processing)
+##6. [Data Proccessing AS ETL](#data-processing-as-etl)
 
 1. Data extraction. In "data_extraction.py" we store methods responsible for the upload of data into pandas data frame from different sources.
 2. Data cleaning. In "data_cleaning.py" we develop the class DataCleaning that clean different tables, which we uploaded in "data_extraction.py".
@@ -120,203 +120,569 @@ There are in total six (6) sources of data.
 
 1. All data cleaning must be performed concerning the "primary key" field. Therefore, we remove rows of the table only in the case, if duplicates (NaNs, missing value etc) appear in this field. Otherwise, there is a risk that the "foreign key" in the "orders_table" will not be found in the "primary key" and the database schema would not work.
 2. The date transformation has to account for different time formats, so we fix this issue in the following way
-```
-        df[column_name] = pd.to_datetime(df[column_name], format='%Y-%m-%d', errors='ignore')
-        df[column_name] = pd.to_datetime(df[column_name], format='%Y %B %d', errors='ignore')
-        df[column_name] = pd.to_datetime(df[column_name], format='%B %Y %d', errors='ignore')
-        df[column_name] = pd.to_datetime(df[column_name], errors='coerce')
-```
-Once the clean data is loaded into the database, the data needs to be converted to the appropriate format and a few additional columns added with more information about the data.
 
-Let's consider a typical workflow
-1. Convert data fields
-```
-ALTER TABLE dim_products
-	ALTER COLUMN product_price TYPE float USING product_price::double precision,
-	ALTER COLUMN weight TYPE float USING weight::double precision,
-	ALTER COLUMN product_code TYPE VARCHAR(255),
-	ALTER COLUMN uuid TYPE uuid using uuid::uuid,
-	ALTER COLUMN still_available Type Bool using still_available::boolean,
-	ALTER COLUMN weight_class Type varchar(50),
-	ALTER COLUMN "EAN" Type varchar(255),
-```
 
-2. Add foreign and primary keys in connected tables
+MILESTONE 3:
+--- Task 1: Casting the column of the orders_table to the correct data types
 
-```
-ALTER TABLE dim_products
-	ADD PRIMARY KEY (product_code);
-ALTER TABLE orders_table
-	ADD FOREIGN KEY(product_code)
-	REFERENCES dim_products(product_code);
-```
-3. Create additional columns with conditional data segmentation. Here we want to have segments, which will help build store logistics based on product weight. Also, we want to remove string-based availability flags to proper boolean format
-```
-ALTER TABLE dim_products
-	ADD weight_class VARCHAR(30);
+SELECT length(max(cast(card_number as Text)))
+FROM orders_table
+GROUP BY card_number
+ORDER BY length(max(cast(card_number as Text))) desc
+LIMIT 1
+
+SELECT length(max(cast(store_code as Text)))
+FROM orders_table
+GROUP BY card_number
+ORDER BY length(max(cast(card_number as Text))) desc
+LIMIT 1
+
+SELECT length(max(cast(product_code as Text)))
+FROM orders_table
+GROUP BY product_code     
+ORDER BY length(max(cast(product_code as Text))) desc
+LIMIT 1
+
+ TABLE orders_table
+	ALTER COLUMN card_number TYPE VARCHAR(19),
+	ALTER COLUMN store_code TYPE VARCHAR(12),
+	ALTER COLUMN product_code TYPE VARCHAR(11),
+	ALTER COLUMN date_uuid TYPE UUID USING CAST(date_uuid as UUID),
+	ALTER COLUMN user_uuid TYPE UUID USING CAST(user_uuid as UUID),
+	ALTER COLUMN product_quantity TYPE SMALLINT;
+   execute(sql) output:
+ The data types of the orders_table have been changed corresponding to those seen in the table below:
++------------------+--------------------+--------------------+
+|   orders_table   | current data type | required data type |
++------------------+--------------------+--------------------+
+| date_uuid        | TEXT               | UUID               |
+| user_uuid        | TEXT               | UUID               |
+| card_number      | TEXT               | VARCHAR (19)       |
+| store_code       | TEXT               | VARCHAR (12)       |
+| product_code     | TEXT               | VARCHAR (11)       |
+| product quantity | BIGINT             | SMALLINT           |
++------------------+--------------------+--------------------+  
+
+
+--- Displaying all the table in the sales_data DATABASE
+
+SELECT * FROM public.orders_table
+
+SELECT * FROM public.dim_users
+
+SELECT * FROM public.dim_products
+
+SELECT * FROM public.dim_store_details
+
+SELECT * FROM public.dim_date_details
+
+SELECT * FROM public.dim_card_details
+
+--- To check what is missing in dim_products to correct and apply easily foreign key  orders_table_product_code_fkey 
+SELECT * FROM orders_table
+WHERE product_code NOT IN (SELECT product_code from dim_products);
+--- To check what is missing in dim_users to correct and apply easily foreign key  orders_table_user_uuid_fkey 
+SELECT * FROM orders_table
+WHERE user_uuid NOT IN (SELECT user_uuid from dim_users);
+--- To check what is missing in dim_card_details to correct and apply easily foreign key  orders_table_card_number_fkey 
+SELECT * FROM orders_table
+WHERE user_uuid NOT IN (SELECT dim_users.user_uuid FROM dim_users);
+
+Task 2: Casting the column of the dim_users_table to the correct data types
+
+ALTER TABLE dim_users
+    ALTER COLUMN first_name TYPE VARCHAR(255),
+    ALTER COLUMN last_name TYPE VARCHAR(255),
+    ALTER COLUMN date_of_birth TYPE DATE
+        USING date_of_birth::DATE,
+    ALTER COLUMN country_code TYPE VARCHAR(3),
+    ALTER COLUMN user_uuid TYPE UUID
+        USING user_uuid::uuid,
+    ALTER COLUMN join_date TYPE DATE;
+    execute(sql) output:
+ The data types of the dim_users table have been changed corresponding to those seen in the table below:   
+    +----------------+--------------------+--------------------+
+| dim_user_table | current data type | required data type |
++----------------+--------------------+--------------------+
+| first_name     | TEXT               | VARCHAR (255       |
+| last_name      | TEXT               | VARCHAR (255)      |
+| date_of_birth  | TEXT               | DATE               |
+| country_code   | TEXT               | VARCHAR(3)         |
+| user_uuid      | TEXT               | UUID               |
+| join_date      | TEXT               | DATE               |
++----------------+--------------------+--------------------+
+
+Task 3: Updating dim_stores_details table with the latitude columns merged in one, the row representing the business's website has been changed from NULL to N/A in the location column as follow:
+
+SELECT length(max(cast(store_code as Text)))
+FROM dim_store_details
+GROUP BY store_code     
+ORDER BY length(max(cast(store_code as Text))) desc
+LIMIT 1 
+
+SELECT length(max(cast(country_code as Text)))
+FROM dim_store_details
+GROUP BY country_code     
+ORDER BY length(max(cast(country_code as Text))) desc
+LIMIT 1 
+
+UPDATE dim_store_details
+SET latitude = COALESCE(latitude || lat, latitude);
+
+ALTER TABLE dim_store_details
+DROP COLUMN lat;
+
+-- Find the longest store code length
+SELECT MAX(LENGTH(store_code::TEXT)) FROM dim_store_details
+SET LIMIT 1; --12
+
+-- Find the longest country code length
+SELECT MAX(LENGTH(country_code::TEXT)) FROM dim_store_details
+SET LIMIT 1; --2
+
+-- Used to find columns with N/A VALUES
+SELECT * FROM public.dim_store_details
+WHERE address = 'N/A';
+
+-- Updates N/A values into NULL
+UPDATE dim_store_details
+SET latitude = NULL
+WHERE latitude = 'N/A';
+
+UPDATE dim_store_details
+SET longitude = NULL
+WHERE longitude = 'N/A';
+
+UPDATE dim_store_details
+SET address = NULL
+WHERE address = 'N/A';
+
+UPDATE dim_store_details
+SET locality = NULL
+WHERE locality = 'N/A';
+
+ALTER TABLE dim_store_details
+    ALTER COLUMN locality TYPE VARCHAR(255),
+    ALTER COLUMN store_code TYPE VARCHAR(12),
+    ALTER COLUMN staff_numbers TYPE SMALLINT
+        USING staff_numbers::smallint,
+    ALTER COLUMN opening_date TYPE DATE,
+    ALTER COLUMN store_type TYPE VARCHAR(255),
+    ALTER COLUMN country_code TYPE VARCHAR(2),
+    ALTER COLUMN continent TYPE VARCHAR(255),
+    ALTER COLUMN longitude TYPE FLOAT
+        USING longitude::FLOAT,
+    ALTER COLUMN latitude TYPE FLOAT
+        USING latitude::FLOAT; 
+
+Then the data types of the dim_stores_details table have been set corresponding to those seen in the table below:
++---------------------+-------------------+------------------------+
+| store_details_table | current data type |   required data type   |
++---------------------+-------------------+------------------------+
+| longitude           | TEXT              | FLOAT                  |
+| locality            | TEXT              | VARCHAR (255)           |
+| store_code          | TEXT              | VARCHAR(12)             |
+| staff_numbers       | TEXT              | SMALLINT               |
+| opening_date        | TEXT              | DATE                   |
+| store_type          | TEXT              | VARCHAR (255) NULLABLE |
+| latitude            | TEXT              | FLOAT                  |
+| country_code        | TEXT              | VARCHAR(2)             |
+| continent           | TEXT              | VARCHAR(255)           |
++---------------------+-------------------+------------------------+
+
+Task 4: Changes and updates in the dim_products table to ease the delivery team work have been made as follow:
+
+ -- Removing £ sign in product_price
 UPDATE dim_products
-	SET weight_class =
-		CASE
-			when weight/1000 < 2 then 'Light'
-			when weight/1000 between 2 and 40 then 'Mid_Sized'
-			when weight/1000 between 41 and 140 then 'Heavy'
-			when weight/1000 > 140 then 'Truck_Required'  
-		else 'Invalid'
-		END;
-  
+SET product_price = REPLACE(product_price, '£', '');
+
+-- Adding a weight_class column
 ALTER TABLE dim_products
-	RENAME COLUMN removed TO still_available;
-  
+    ADD weight_class VARCHAR(14); 
+
+And then we apply the syntax codes to meet the delivery Team requirements:
++--------------------------+-------------------+
+| weight_class VARCHAR(?) | weight range(kg) |
++--------------------------+-------------------+
+| Light                    | < 2               |
+| Mid_Sized                | >= 2 - < 40       |
+| Heavy                    | >= 40 - < 140     |
+| Truck_Required           | => 140            |
++----------------------------+-----------------+
+
 UPDATE dim_products
-	SET still_available =
-		CASE
-			when still_available = 'Still_available' then True
-			when still_available = 'Removed' then False
-		END;
-```
+SET weight_class = CASE
+WHEN weight_kg < 2 then 'Light'
+WHEN weight_kg >= 2 AND weight_kg < 40 then 'Mid_Sized'
+WHEN weight_kg >= 40 AND weight_kg < 140 then 'Heavy'
+WHEN weight_kg >= 140 then 'Truck_Required'
+ELSE NULL
+END;
 
-## SQL Queries
+ TASK 5: Update the Products_table has been updated with all the columns cleaned and new column created. From the changes columns have been casted to the required data types as follow:
 
-As our primary and foreign keys are settled and data are clean, we can start writing queries in our database.
+-- Rename removed column into still_available and weight(kg)
+ALTER TABLE dim_products
+RENAME COLUMN removed TO still_available;
+-- Rename
+ALTER TABLE dim_products
+    RENAME COLUMN weight TO weight_kg;
 
-1. How many stores do the business have and in which countries?
-```
-select country_code,
-	count (*)
-from dim_store_details
-group by country_code
-```
-<img src="https://user-images.githubusercontent.com/33790455/223984506-becc453f-ebff-4a07-9459-1fa842137abe.png"  width="300">
+-- Find the longest product code length
+SELECT MAX(LENGTH(product_code)) FROM dim_products
+SET LIMIT 1; --11
 
-The query result shows that we have one exception one. After checking it becomes clear, that it is a web store operating internationally.
+-- Find the longest EAN length
+SELECT MAX(LENGTH("EAN")) FROM dim_products
+SET LIMIT 1; --17
+--- Find the longest weight_class
+SELECT MAX(LENGTH(weight_class)) FROM dim_products
+SET LIMIT 1;
+-- Alter column data types
+ALTER TABLE dim_products
+ALTER COLUMN product_price TYPE FLOAT
+    USING product_price::FLOAT,
+ALTER COLUMN weight_kg TYPE FLOAT,
+ALTER COLUMN "EAN" TYPE VARCHAR(17),
+ALTER COLUMN product_code TYPE VARCHAR(11),
+ALTER COLUMN date_added TYPE DATE,
+ALTER COLUMN uuid TYPE UUID
+    USING uuid::uuid,
+ALTER COLUMN still_available TYPE BOOLEAN
+    USING CASE still_available
+    WHEN 'Still_available' THEN TRUE 
+    WHEN 'Removed' THEN FALSE
+    ELSE NULL
+    END;  
 
-2. Which locations have the most stores?
-```
-select locality,
-	count (*)
-from dim_store_details group by locality
-ORDER BY COUNT(*) DESC;
-```
+execute(sql) output:
+ The data types of the dim_products table have been changed corresponding to those seen in the table below:
++-----------------+--------------------+--------------------+
+| dim_products   | current data type   | required data type |
++-----------------+--------------------+--------------------+
+| product_price   | TEXT               | FLOAT              |
+| weight          | TEXT               | FLOAT              |
+| EAN             | TEXT               | VARCHAR(17)         |
+| product_code    | TEXT               | VARCHAR(11)         |
+| date_added      | TEXT               | DATE               |
+| uuid            | TEXT               | UUID               |
+| still_available | TEXT               | BOOL               |
+| weight_class    | TEXT               | VARCHAR(14)         |
++-----------------+--------------------+--------------------+
+       
 
-<img src="https://user-images.githubusercontent.com/33790455/223987621-292b53c5-15e6-4844-8aae-8dd1389d85cd.png"  width="300">
+ Task 6: Updating the dim_date_details table. And changes into dim_date_times table columns have been made to the correct data types as follow:
 
-3. Which months produce the most sales overall time of records?
+-- Find the longest month length
+SELECT MAX(LENGTH(month::TEXT)) FROM dim_date_times
+SET LIMIT 1; --2
 
-```
-select 	dim_date_times.month,
-round(sum(orders_table.product_quantity*dim_products.product_price)) as total_revenue
-from orders_table
-	join dim_date_times on  orders_table.date_uuid = dim_date_times.date_uuid
-	join dim_products on  orders_table.product_code = dim_products.product_code
-group by dim_date_times.month
-ORDER BY sum(orders_table.product_quantity*dim_products.product_price) DESC;
-```
+-- Find the longest year length
+SELECT MAX(LENGTH(year::TEXT)) FROM dim_date_times
+SET LIMIT 1; --4
 
-<img src="https://user-images.githubusercontent.com/33790455/223988320-ea32b8df-834b-45cb-89c2-3041ec835bb5.png" width="300">
+-- Find the longest day length
+SELECT MAX(LENGTH(day::TEXT)) FROM dim_date_times
+SET LIMIT 1; --2
 
-4. How many sales come online?
+-- Find the longest time_period length
+SELECT MAX(LENGTH(time_period::TEXT)) FROM dim_date_times
+SET LIMIT 1; --10
 
-```
-select 	count (orders_table.product_quantity) as numbers_of_sales,
-	sum(orders_table.product_quantity) as product_quantity_count,
-	case
-		when dim_store_details.store_code = 'WEB-1388012W' then 'Web'
-	else 'Offline'
-	end as product_location
-from orders_table
-	join dim_date_times on  orders_table.date_uuid = dim_date_times.date_uuid
-	join dim_products on  orders_table.product_code = dim_products.product_code
-	join dim_store_details on orders_table.store_code = dim_store_details.store_code
-group by product_location
-ORDER BY sum(orders_table.product_quantity) ASC;
-```
-
-<img src="https://user-images.githubusercontent.com/33790455/223990808-d5cc1707-3476-4d1e-848e-e080d659d46a.png"  width="370">
-
-5. What percentage of sales come through each type of store?
-
-```
-select 	dim_store_details.store_type,
-		round(sum (orders_table.product_quantity*dim_products.product_price)) as revenue,
-		round(sum(100.0*orders_table.product_quantity*dim_products.product_price)/(sum(sum(orders_table.product_quantity*dim_products.product_price)) over ())) AS percentage_total
-from orders_table
-	join dim_date_times on  orders_table.date_uuid = dim_date_times.date_uuid
-	join dim_products on  orders_table.product_code = dim_products.product_code
-	join dim_store_details on orders_table.store_code = dim_store_details.store_code
-group by dim_store_details.store_type
-ORDER BY percentage_total DESC;
-```
-
-<img src="https://user-images.githubusercontent.com/33790455/223994056-0d4f0d86-6737-4617-beba-559482d7b412.png" width="370">
-
-6. Which month in the year produced the most sales?
-
-```
-select  dim_date_times.year,
-		dim_date_times.month,
-		round(sum(orders_table.product_quantity*dim_products.product_price)) as revenue
-from orders_table
-	join dim_date_times    on  orders_table.date_uuid    = dim_date_times.date_uuid
-	join dim_products      on  orders_table.product_code = dim_products.product_code
-	join dim_store_details on orders_table.store_code    = dim_store_details.store_code
-group by 	dim_date_times.month,
-			dim_date_times.year
-ORDER BY    sum(orders_table.product_quantity*dim_products.product_price)  DESC;
-```
-
-<img src="https://user-images.githubusercontent.com/33790455/223994654-c1105925-130c-45a3-89e2-d03ada8ed18a.png"  width="370">
-
-7. What is the staff count?
-```
-select  sum(dim_store_details.staff_numbers) as total_staff_numbers,
-	dim_store_details.country_code
-from dim_store_details
-group by dim_store_details.country_code
-```
-
-<img src="https://user-images.githubusercontent.com/33790455/223995198-0203d732-772f-4165-aeea-7e35e5189066.png"  width="300">
-
-8. Which German store saling the most?
-```
-select  round(count(orders_table.date_uuid)) as sales,
-		dim_store_details.store_type,
-		dim_store_details.country_code
-from orders_table
-	join dim_date_times    on orders_table.date_uuid    = dim_date_times.date_uuid
-	join dim_products      on orders_table.product_code = dim_products.product_code
-	join dim_store_details on orders_table.store_code   = dim_store_details.store_code
-where dim_store_details.country_code = 'DE'
-group by 	dim_store_details.store_type,dim_store_details.country_code
-```
-
-<img src="https://user-images.githubusercontent.com/33790455/223996146-fb5c25f0-5a5c-4347-af9b-19a5aac80926.png" width="370">
-
-9. How quickly company making sales?
-
-To perform such a query we need to form a new column in the table dim_times as aggregation statement like avg( LAG() ) is prohibited.
-Therefore we create a new column containing the time difference between timestamps in the dim_date_times table.
-```
+-- Alter column data types
 ALTER TABLE dim_date_times
-ADD COLUMN time_diff interval;
+ALTER COLUMN month TYPE VARCHAR(2),
+ALTER COLUMN year TYPE VARCHAR(4),
+ALTER COLUMN day TYPE VARCHAR(2),
+ALTER COLUMN time_period TYPE VARCHAR(10),
+ALTER COLUMN date_uuid TYPE UUID
+    USING date_uuid::uuid;
+ The data types of the dim_date_times table have been changed corresponding to those seen in the table below:
++-----------------+-------------------+--------------------+
+| dim_date_times  | current data type | required data type |
++-----------------+-------------------+--------------------+
+| month           | TEXT              | VARCHAR(2)         |
+| year            | TEXT              | VARCHAR(4)         |
+| day             | TEXT              | VARCHAR(2)         |
+| time_period     | TEXT              | VARCHAR(10         |
+| date_uuid       | TEXT              | UUID               |
++-----------------+-------------------+--------------------+
 
-UPDATE dim_date_times
-SET time_diff = x.time_diff
+
+--TASK 7: Updating the dim_card_details table. Changes of dim-card-details table column into the correct data types have been made as follow:
+
+-- Find the longest card_number length
+SELECT MAX(LENGTH(card_number)) FROM dim_card_details
+SET LIMIT 1; --- >  19
+
+-- Find the longest expiry_date length
+SELECT MAX(LENGTH(expiry_date)) FROM dim_card_details
+SET LIMIT 1; --- > 10
+
+-- Alter column data types
+ALTER TABLE dim_card_details
+ALTER COLUMN card_number TYPE VARCHAR(19),
+ALTER COLUMN expiry_date TYPE VARCHAR(10),
+ALTER COLUMN date_payment_confirmed TYPE DATE;
+
+execute(sql) output:
+The data types of the dim_card_details table have been changed corresponding to the right as in the table below:
++------------------------+-------------------+--------------------+
+|    dim_card_details    | current data type | required data type |
++------------------------+-------------------+--------------------+
+| card_number            | TEXT              | VARCHAR(19)        |
+| expiry_date            | TEXT              | VARCHAR(10)        |
+| date_payment_confirmed | TEXT              | DATE               |
++------------------------+-------------------+--------------------+
+
+Task 8: The Primary Keys in each dimension tables have been created with its columns matching the same columns inside the orders table using sql as follow:
+
+1/- Applying dim_users primary key:
+
+ALTER TABLE dim_users
+ADD PRIMARY KEY (user_uuid);
+
+2/- Applying primary key to the dim_card_details' column card_number: 
+ALTER TABLE dim_card_details
+ADD PRIMARY KEY (card_number);
+
+Note:This operation has been donne to overcome the issue to apply the key, after these codes execution the key was apply successfully to the dim_card_details.*
+SELECT date_payment_confirmed, count (*)
+FROM dim_card_details
+GROUP BY date_payment_confirmed
+HAVING count (*) > 1;
+
+DELETE FROM dim_card_details
+WHERE date_payment_confirmed IN (
+  SELECT date_payment_confirmed
+  FROM dim_card_details
+  GROUP BY date_payment_confirmed
+  HAVING COUNT(*) > 1
+);
+
+DELETE FROM dim_card_details
+WHERE date_payment_confirmed IS NULL;
+
+3/- Applying primary key to the dim_store_details' column store_code:
+ALTER TABLE dim_store_details
+ADD PRIMARY KEY (store_code);
+
+4/- Applying primary key to the dim_date_times column date_uuid: 
+ALTER TABLE dim_date_times
+ADD PRIMARY KEY (date_uuid);
+
+5/- Applying primary key to the dim_products' column product_code
+ALTER TABLE dim_products
+ADD PRIMARY KEY (product_code);
+Note: These syntax codes have been run to overcome the issue applying the key. After these changes the primary key has been apply to dim_product table successfully.
+INSERT INTO dim_products (product_code) 
+    VALUES ('l1-2836416D');
+INSERT INTO dim_products (product_code) 
+    VALUES ('M6-7203684r');
+
+Task 9: With the primary keys created in all the dim prefixed tables. There is to create a foreign key to connect the tables using the SQL syntax codes. The foreign keys constraints are applied in the orders_table to reference the primary keys in the columns of the dim tables.This has made the star-based database schema complete.
+
+1/-
+ALTER TABLE orders_table
+ADD FOREIGN KEY (card_number)
+REFERENCES dim_card_details (card_number);
+
+2/-
+ALTER TABLE orders_table
+ADD FOREIGN KEY (user_uuid)
+REFERENCES dim_users (user_uuid); 
+
+3/-
+ALTER TABLE orders_table
+ADD FOREIGN KEY (store_code)
+REFERENCES dim_store_details (store_code);
+
+4/-
+ALTER TABLE orders_table
+ADD FOREIGN KEY (product_code)
+REFERENCES dim_products (product_code);
+
+5/-
+ALTER TABLE orders_table
+ADD FOREIGN KEY (card_number)
+REFERENCES dim_date_times (date_uuid);
+Note: AS there is an issue to the code above, the below syntax codes were run to overcome the problem: 
+SELECT orders_table.store_code
+	FROM orders_table
+	LEFT JOIN dim_store_details
+	ON orders_table.store_code = dim_store_details.store_code
+	WHERE dim_store_details.store_code IS NULL;
+
+INSERT INTO dim_store_details(store_code)
+	SELECT DISTINCT orders_table.store_code
+	FROM orders_table
+	WHERE orders_table.store_code NOT IN 
+		(SELECT dim_store_details.store_code
+		FROM dim_store_details);
+Finally, the Foreign Keys have been added to the orders_table successfully to get the relations between the orders_table to the other 5 dimension tables (respectively: orders_table_product_code_fkey, orders_table_card_number_fkey, orders_table_user_uuid_fkey, orders_table_date_uuid_fkey, orders_table_store_code_fkey) in form of SQL star_based SCHEMA (reference database_star_based_schema.pgerd).
+
+MILESTONE 4:
+#Task 9
+WITH cte AS(
+    SELECT TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD HH24:MI:SS') as datetimes, year FROM dim_date_times
+    ORDER BY timestamp DESC
+), cte2 AS(
+    SELECT
+        year,
+        datetimes,
+        LEAD(datetimes, 1) OVER (ORDER BY datetimes DESC) as time_difference
+        FROM cte
+) SELECT year, AVG((datetimes - time_difference)) as actual_time_taken FROM cte2
+GROUP BY year
+ORDER BY actual_time_taken DESC
+LIMIT 5; 
+
+![Alt text](image.png)
+
+# MILESTONE 4
+
+#Task 1
+SELECT country_code, count(*) AS total_no_stores
+FROM dim_store_details
+GROUP BY country_code
+ORDER BY country_code;
+# Task 2
+SELECT locality, count(*) AS total_no_stores
+FROM dim_store_details
+GROUP BY locality
+ORDER BY total_no_stores DESC
+LIMIT 10;
+#Task 3
+SELECT
+	ROUND(CAST(SUM(spend) AS numeric), 2) AS total_sales,
+	month
 FROM (
-  SELECT timestamp, timestamp - LAG(timestamp) OVER (ORDER BY timestamp) AS time_diff
-  FROM dim_date_times
-) AS x
-WHERE dim_date_times.timestamp = x.timestamp;
-```
-After creation of column time difference, task query much more straightforward
-```
-select  dim_date_times.year, 		  
-    concat('"hours": ',EXTRACT(hours FROM  avg(dim_date_times.time_diff)),' ',
-		   '"minutes": ',EXTRACT(minutes FROM  avg(dim_date_times.time_diff)),' ',		  
-		   '"seconds": ',round(EXTRACT(seconds FROM  avg(dim_date_times.time_diff)),2),' '		  
-		  ) as actual_time_taken		 		  
-from dim_date_times
-group by dim_date_times.year
-order by avg(dim_date_times.time_diff) desc
-```
-<img src="https://user-images.githubusercontent.com/33790455/223996686-aee796e5-3446-45ac-9114-65f688f0b4fb.png"  width="370">
->>>>>>> 75a6cb3793744ae2f4acb8951cad33177604cb4a
+	SELECT
+		ord.product_quantity * prod.product_price AS spend,
+		dt.month
+	FROM orders_table ord
+	INNER JOIN dim_date_times dt
+		ON ord.date_uuid = dt.date_uuid
+	INNER JOIN dim_products prod
+		ON ord.product_code = prod.product_code
+) x
+GROUP BY month
+ORDER BY total_sales DESC;
+# Task 4
+SELECT
+	COUNT(*) AS numbers_of_sales,
+	SUM(product_quantity) AS product_quantity_count,
+	location
+FROM (
+	SELECT
+		ord.product_quantity,
+		CASE
+			WHEN st.store_type = 'Web Portal' THEN 'Web'
+			ELSE 'Offline'
+		END AS location
+	FROM orders_table ord
+	INNER JOIN dim_store_details st
+		ON ord.store_code = st.store_code
+) x
+GROUP BY location
+ORDER BY location DESC;
+# Task 5
+SELECT
+	store_type,
+	ROUND(CAST(SUM(sale) AS NUMERIC), 2) AS total_sales,
+	ROUND(CAST(100 * SUM(sale) / total AS NUMERIC), 2) AS "percentage_total(%)"
+FROM (
+	SELECT
+		st.store_type,
+		ord.product_quantity * prod.product_price AS sale
+	FROM orders_table ord
+	INNER JOIN dim_store_details st
+		ON ord.store_code = st.store_code
+	INNER JOIN dim_products prod
+		ON ord.product_code = prod.product_code
+) x
+CROSS JOIN (
+	SELECT SUM(ord.product_quantity * prod.product_price) AS total
+	FROM orders_table ord
+	INNER JOIN dim_products prod
+	ON ord.product_code = prod.product_code
+) y
+GROUP BY x.store_type, y.total
+ORDER BY total_sales DESC;
+# Task 6
+SELECT
+	ROUND(CAST(SUM(sale) AS NUMERIC), 2) AS total_sales,
+	year,
+	month
+FROM (
+	SELECT
+		dt.year,
+		dt.month,
+		ord.product_quantity * prod.product_price AS sale
+	FROM orders_table ord
+	INNER JOIN dim_products prod
+		ON ord.product_code = prod.product_code
+	INNER JOIN dim_date_times dt
+		ON ord.date_uuid = dt.date_uuid
+) x
+GROUP BY year, month
+ORDER BY total_sales DESC
+LIMIT 10;
+# Task 7
+SELECT
+	SUM(staff_numbers) AS total_staff_numbers,
+	country_code
+FROM dim_store_details
+GROUP BY country_code
+ORDER BY total_staff_numbers DESC;
+# Task 8
+SELECT
+	ROUND(CAST(SUM(sale) AS NUMERIC), 2) AS total_sales,
+	store_type,
+	country_code
+FROM (
+SELECT
+	st.store_type,
+	st.country_code,
+	ord.product_quantity * prod.product_price AS sale
+FROM orders_table ord
+INNER JOIN (
+	SELECT store_code, store_type, country_code
+	FROM dim_store_details
+	WHERE country_code = 'DE'
+	) st
+	ON ord.store_code = st.store_code
+INNER JOIN dim_products prod
+	ON ord.product_code = prod.product_code
+) x
+GROUP BY
+	store_type,
+	country_code
+ORDER BY
+	total_sales;
+# Task 9
+SELECT
+	year,
+	--avg_datediff,
+	'"hours": ' || TO_CHAR(avg_datediff, 'HH24') ||
+	', "minutes": ' || TO_CHAR(avg_datediff, 'MI') ||
+	', "seconds": ' || TO_CHAR(avg_datediff, 'SS') ||
+	', "milliseconds": ' || TO_CHAR(avg_datediff, 'MS')
+	AS actual_time_taken
+
+
+
+------------
+WITH cte AS(
+    SELECT TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, '-', timestamp), 'YYYY-MM-DD HH24:MI:SS') as datetimes, year FROM dim_date_times
+    ORDER BY timestamp DESC
+), cte2 AS(
+    SELECT
+        year,
+        datetimes,
+        LEAD(datetimes, 1) OVER (ORDER BY datetimes DESC) as time_difference
+        FROM cte
+) SELECT year, AVG((datetimes - time_difference)) as actual_time_taken FROM cte2
+GROUP BY year
+ORDER BY actual_time_taken DESC
+LIMIT 5;
