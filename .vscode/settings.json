@@ -4,12 +4,54 @@
         "boto",
         "ccode",
         "dataframe",
+        "datetimes",
         "dext",
         "dropna",
+        "fillna",
         "iloc",
+        "isna",
+        "notna",
         "pandasgui",
         "psycopg",
         "retu",
-        "tablefmt"
-    ]
+        "tablefmt",
+        "weightkg"
+    ],
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "pagila",
+            "database": "pagila",
+            "username": "postgres"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "database": "sales_data",
+            "username": "postgres",
+            "name": "salesdata"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "sales_data",
+            "database": "sales_data",
+            "username": "postgres"
+        }
+    ],
+    "cSpell.customDictionaries": {
+        "custom-dictionary-workspace": {
+            "name": "custom-dictionary-workspace",
+            "path": "${workspaceFolder:multinational-retail-data-centralisation335}/.cspell/custom-dictionary-workspace.txt",
+            "addWords": true,
+            "scope": "workspace"
+        }
+    }
 }

@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from sqlalchemy import create_engine, inspect, text
 import psycopg2
+import io
 import requests
 import tabula
 from database_utils import DatabaseConnector
@@ -44,7 +45,7 @@ class DataExtractor:
     def read_rds_table(self, tables_name, conn):
        # self.tables_name = 'legacy_users'
         df_users = pd.read_sql_table(tables_name, conn)
-        # print(df.columns)
+       
         print(df_users)
         return df_users
 
@@ -57,30 +58,27 @@ class DataExtractor:
         self.df_users='postgres'.extract('engine')
         pd.set_option('display.max_columns', None)
         
-        #print(tabula(self.df_users, headers = 'keys', tablefmt = 'psql'))
         print(self.df_users)
         show(self.df_users)
-        return self.df_users  # 1- upload_to_db('dim_users')
-         # Step 2: Create a method in your DataExtractor class called retrieve_pdf_data, which takes in a link as an argument and returns a pandas DataFrame.
-         # Use the tabula-py Python package, imported with tabula to extract all pages from the pdf document at following link. Then return a DataFrame of the extracted data.
+        return self.df_users
+ 
+         # Step 2: Retrieving  pdf_data using the pdf_link as an argument.
     def retrieve_pdf_data(self, link):
         link = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'
-        df = tabula.read_pdf(link, pages="all")
+        df = tabula.read_pdf(link, pages='all')
         df = pd.concat(df)
         dfc = df.reset_index(drop=True)
         print(dfc)
-        return dfc  # 2- upload_to_db('dim_card_details')
-      #  dfs = pd.concat(tabula.read_pdf(url, pages='all'), ignore_index=True)
-       # return dfs
-        # Task5: Step 1: Create a method in your DataExtractor class called list_number_of_stores which returns the number of stores to extract. It should take in the number of stores endpoint and header dictionary as an argument.
-      
+        return dfc 
+       
+        # Task5: Step 1: A method to list the number_of_stores to extract using the endpoint and header dictionary as an argument.     
     def list_number_of_stores(self, retu_endpoint, header_dict):
         self.header_dict = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'} 
         self.retu_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores'
         response = requests.get(self.retu_endpoint, headers=self.header_dict) 
         data = response.json()
         return data
-# Step 3: create another method retrieve_stores_data which will take the retrieve a store endpoint as an argument and extracts all the stores from the API saving them in a pandas DataFrame.
+# Step 3: Method to retrieve stores_data from the API.
     def retrieve_stores_data(self, retr_endpoint, header_dict):
         self.header_dict = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
         self.retr_endpoint = 'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}'
@@ -90,25 +88,18 @@ class DataExtractor:
             self.retr_endpoint = f'https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}'
             response = requests.get(self.retr_endpoint, headers=self.header_dict)
             list_of_df.append(pd.json_normalize(response.json()))
-        return pd.concat(list_of_df)      # 3 - upload_to_db('dim_stores-_details')  
+        return pd.concat(list_of_df)     
             
-  # Task6- Step 1:Create a method in DataExtractor called extract_from_s3 which uses the boto3 package to download and extract the information returning a pandas DataFrame.
- # The S3 address for the products data is the following s3://data-handling-public/products.csv the method will take this address in as an argument and return the pandas DataFrame. 
-    def extract_from_s3(self, s3_link):
-        self.s3_link = 's3://data-handling-public/products.csv'
+  # Task6- This method is called to extract products file from s3_address . 
+    def extract_from_s3(self, s3_address):
+        s3_address = 's3://data-handling-public/products.csv'
         s3 = boto3.client('s3')
-        #s3.download_file('data-handling-public', '/products.csv', '/Users/vicky/multinational-retail-data-centralisation335/products.csv')       
         response = s3.get_object(Bucket='data-handling-public', Key='products.csv')
-        status = response.get("ResponseMetadata", {}).get("HTTPStatusCode")
-        if status == 200:
-            print(f"Successful S3 get_object response. Status - {status}") # 4 - upload_to_db('dim_products')
-            return pd.read_csv(response.get("Content"))
-        else:
-            print(f"Unsuccessful S3 get_object response. Status - {status}")
+        content = response['Body'].read() 
+        df_s3 = pd.read_csv(io.BytesIO(content))
+        return df_s3
          
-   #Task 7  # Order table data  orders_table = extractor.read_rds_table(table_names, 'orders_table', engine)  # # Step 1:Using the database table listing methods you created earlier list_db_tables, list all the tables in the database to get the name of the table containing all information about the product orders.
-   # Step 2: Extract the orders data using the read_rds_table method you create earlier returning a pandas DataFrame.  
-   
+   #Task 7 This step aim to Extract the orders data using the read_rds_table method created earlier that return a pandas DataFrame.   
     def extract_orders_data(self, engine):
         self.engine ='postgres'
         self.engine = create_engine(f"{self.RDS_DATABASE_TYPE}+{self.RDS_DBAPI}://{self.RDS_USER}:{self.RDS_PASSWORD}@{self.RDS_HOST}:{self.RDS_PORT}/{self.RDS_DATABASE}")
@@ -119,61 +110,61 @@ class DataExtractor:
         pd.set_option('display.max_columns', None)
         print(self.dfo)
         self.dfo.isna().any().sum()
-        return self.dfo                           # 5 - upload_to_db('orders_table')
- 
-    #Task8 The final source of data is a JSON file, orders_table S3_link     
+        return self.dfo                          
+    
+    #Task8 This step is about to retrieve the JSON file, date_details from the S3_link     
     def extract_from_s3_link(self, url):
-       self.url = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
-       self.df=pd.read_json(url)
-       return self.df
-   
-    #    response = requests.get(url)
-      #  dict = response.json()
-        #date_details_df = pd.DataFrame([])
-        #for column_name in dict.keys():
-          #  value_list = []
-            #for _ in dict[column_name].keys():
-              #  value_list.append(dict[column_name][_])
-           # date_details_df[column_name] = value_list
-        #return date_details_df  # 6 - upload_to_db('dim_date_times')
- 
+        url = 'http://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json'
+        date_details = requests.get(url).json()
+        date_details_df = pd.DataFrame(date_details)
+        return date_details_df     
 
 if __name__ == '__main__': 
    dext = DataExtractor() 
    creds = dext.read_creds('db_creds.yaml')
    con = dext.init_db_engine(creds)
-  # df_users = dext.read_rds_table('legacy_users', con)
-   #pd.set_option('display.max_columns', None)
-   #print(df_users)
-   #show(df_users)
-   
-   #dfo = dext.read_rds_table('orders_table', con)
-   
-   #print(tabula(dfo, headers = 'keys', tablefmt = 'psql')) 
-   #print(dfo)
-   #show(dfo)
-   #dfc = dext.retrieve_pdf_data('https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf')
-   #print(dfc.head())
-   #print(dfc.info())
-   #display(df)
-  # pd.set_option('display.max_columns', 11)
-  # pd.set_option('display.max_rows', 1000)
-   #print(dfo.head(1000))
-   #dfd = dext.list_number_of_stores('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores', {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
-   #print(dfd)
-   #dfs = dext.retrieve_stores_data('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}', {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
-   #print(dfs) 
-   #data = dext.extract_from_s3('s3://data-handling-public/products.csv')
-   #print(data)   
-   #db.to_csv('dim_store_details.csv')
-   date_details_df = dext.extract_from_s3_link('https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json')
-   print(date_details_df)
+ # Calling to extract the users table   
+   df_users = dext.read_rds_table('legacy_users', con)
+   print(df_users.info())
+   pd.set_option('display.max_columns', 12)
+   pd.set_option('display.max_rows', None)
+   show(df_users)
+# Calling method to extract orders table   
+   dfo = dext.read_rds_table('orders_table', con)   
+   print(dfo.info())
+   show(dfo)
+# Calling method to retrieve card_details table    
+   dfc = dext.retrieve_pdf_data('https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf')
+   print(dfc.info())    
+   show(dfc)
    pd.set_option('display.max_columns', None)
+   pd.set_option('display.max_rows', None)
+   
+# Calling to retrieve the store_details table  
+   dfd = dext.list_number_of_stores('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores', {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
+   print(dfd)
+   dfs = dext.retrieve_stores_data('https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}',{"x-api-key":"yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
+   print(dfs.info())
+   pd.set_option('display.max_columns', None)
+   pd.set_option('display.max_rows', None)
+   show() 
+   
+# Calling the products extraction table
+   products_data = dext.extract_from_s3('s3://data-handling-public/products.csv')
+   print(products_data)
+   print(products_data.info())
+   show(products_data)  
+
+   date_details_df = dext.extract_from_s3_link('https://data-handling-public.s3.eu-west-1.amazonaws.com/date_details.json')
+   print(date_details_df.info())
+   show(date_details_df)
+   pd.set_option('display.max_columns', None)
+   
    def main():
        dict.list_db_tables()
        main()
-   #extract_from_s3('s3://data-handling-public/products.csv')
-   #df = dext.extract_from_s3_link()
+ 
+  
        
  
 

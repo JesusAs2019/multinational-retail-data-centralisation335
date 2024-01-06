@@ -40,19 +40,7 @@ class DatabaseConnector:
         for table in cur.fetchall():
             print(table)
 
-    # def upload_to_db(self, df, table):
-    #     # df = pd.DataFrame()
-    #     conn = self.establish_conn()
-    #     try:
-    #         conn.execute(df.to_sql(name=table, con=conn, if_exists='replace', index=False))
-    #         conn.close()
-    #         # df.to_sql(name=table, con=conn, if_exists='replace', index=False)
-    #         print(f"Data uploaded to '{table}' table successfully.")
-    #     except Exception as e:
-    #         print(f"Error uploading data to '{table}' \n {e}")
-    #     # conn.execute(df.to_sql(name=table, con=conn, if_exists='replace', index=False))
-    #     conn.close()
-         # Step 8: Once extracted and cleaned use the upload_to_db method to store the data in your sales_data database in a table named dim_users.
+         # Step 8: Once extracted and cleaned the upload_to_db method has been use to store the data in the sales_data database as dim_users.
     def upload_to_db(self, df, db_creds):
         local_engine = create_engine(f"{db_creds['LOCAL_DATABASE_TYPE']}+{db_creds['LOCAL_DB_API']}://{db_creds['LOCAL_USER']}:{db_creds ['LOCAL_PASSWORD']}@{db_creds['LOCAL_HOST']}:{db_creds['LOCAL_PORT']}/{db_creds['LOCAL_DATABASE']}")
         local_engine.connect()
