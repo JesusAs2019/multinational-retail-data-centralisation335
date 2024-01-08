@@ -18,11 +18,11 @@
 7. [Lesson Learned](#lesson-learned)
 8. [Liscense Information](#liscense-information)
 
-##1. [Project Scenario Overview](#project-scenario-overview)
+1. [Project Scenario Overview](#project-scenario-overview)
 
 Working for a worldwide retails multinational company with a vision to foster a more data-driven strategy approach, we are asked to develop a data pipeline so that the organisation huge sales data scatter over diverse data source locations can be simply acceded from one central data repository.
 
-##2. [Project Discription](#project-discription)
+2. [Project Discription](#project-discription)
 
 This project organised into four milestones aims at the data centralization for a sale products multinational organisation. It implements data engineering processes in creating a data pipeline method: Moving company’s bulky datasets from different data sources to a central database (destination). Before data flows into this central data repository, it underwent some data processing using ETL (extract-transform-load) method — so, by using advanced data engineering tools, data has been gathered, imported, cleaned/wrangling, and uploaded to its destination the central database (known as Sales Data), and finally, from there for an optimized data storage repo and ease access a star-based database schema has been produced for querying and analysis. In developing this complex SQL-star-based data queries from advanced Pandas, Python, PostgreSQL and SQL, this project provides to the production environment (stakeholders…) a content for business holistic valuable awarenesses and decisions making on sales and revenues of the types of the stores and their locations.
 This project is an opportunity to present to the users a real-life data solution practice, from data acquisition to query and analysis.
