@@ -538,6 +538,9 @@ Finally, the Foreign Keys have been added to the orders_table successfully to ge
 
 ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/aecc3dbb-350f-4cf8-bf67-9cbb3c800910)
 
-
+"country_code","total_no_stores"
+"DE","141"
+"GB","266"
+"US","34"
 
 
