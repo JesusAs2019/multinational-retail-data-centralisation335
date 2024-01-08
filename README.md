@@ -530,16 +530,15 @@ INSERT INTO dim_store_details(store_code)
 		FROM dim_store_details);
 Finally, the Foreign Keys have been added to the orders_table successfully to get the relations between the orders_table to the other 5 dimension tables (respectively: orders_table_product_code_fkey, orders_table_card_number_fkey, orders_table_user_uuid_fkey, orders_table_date_uuid_fkey, orders_table_store_code_fkey) in form of SQL star_based SCHEMA (reference database_star_based_schema.pgerd).
 
+```
 ![image](C:\Users\vicky\OneDrive\Documents\AiCore_Data-Engineering\Foreign_Keys_Orders_table.png)
 
-```
 
-```
 ## MILESTONE 4: Querying The Data
 
 ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/aecc3dbb-350f-4cf8-bf67-9cbb3c800910)
 
-
+```
 # MILESTONE 4: CREATING THE STAR_BASED SCHEMA DATABASE
 
 ---
