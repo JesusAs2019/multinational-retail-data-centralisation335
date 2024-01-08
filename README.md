@@ -18,8 +18,9 @@
 8. [Data Proccessing](#data-processing)
 ## C- [MILESTONE 3](mileston-3)
 ## D- [MILESTONE 4](mileston-4)
-10. [Lesson Learned](#lesson-learned)
-11. [Liscense Information](#liscense-information)
+11. [Lesson Learned](#lesson-learned)
+12. [Liscense Information](#liscense-information)
+13. [Acknowledgement](#acknowledgement)
 
 
 > [Project Scenario Overview](#project-scenario-overview)
@@ -772,4 +773,5 @@ This project is open-source and available under the MIT License.
 In this project, we create a local PostgreSQL database. We upload data from various sources, process it, create a database schema and run SQL queries.
 Key technologies used: Postgres, AWS (s3), boto3, rest-API, csv, Python (Pandas).
 Abr. Mil = Milestone
-    
+
+13. [Acknowledgement](#acknowledgement)    
