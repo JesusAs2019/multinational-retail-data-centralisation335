@@ -23,6 +23,11 @@
 13. [Acknowledgement](#acknowledgement)
 
 
+
+---
+---
+
+
 > [Project Scenario Overview](#project-scenario-overview)
 
 Working for a worldwide retails multinational company with a vision to foster a more data-driven strategy approach, we are asked to develop a data pipeline so that the organisation huge sales data scatter over diverse data source locations can be simply acceded from one central data repository.
