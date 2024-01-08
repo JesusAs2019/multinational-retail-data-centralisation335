@@ -1,8 +1,8 @@
 # multinational-retail-data-centralisation33
-=======
 
 ---
 ---
+
 ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/c7572e7a-9ac8-4708-8ef1-1f87bd963a30)
 
 
