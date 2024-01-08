@@ -530,6 +530,7 @@ INSERT INTO dim_store_details(store_code)
 		FROM dim_store_details);
 Finally, the Foreign Keys have been added to the orders_table successfully to get the relations between the orders_table to the other 5 dimension tables (respectively: orders_table_product_code_fkey, orders_table_card_number_fkey, orders_table_user_uuid_fkey, orders_table_date_uuid_fkey, orders_table_store_code_fkey) in form of SQL star_based SCHEMA (reference database_star_based_schema.pgerd).
 
+![image](C:\Users\vicky\OneDrive\Documents\AiCore_Data-Engineering\Foreign_Keys_Orders_table.png)
 
 ```
 
@@ -743,3 +744,19 @@ LIMIT 5;
  +------+---------------------------------------------------------------+
 
 ```
+10. [Lesson Learned](#lesson-learned)
+
+This project helped me understand really the duty of Data Engineer and his daily challenges as developping Data Engineering skills through real-world practical applications is time consuming with constant methods reviews and iterations for to make it works complex code syntax are path with many challenges; therefore, with dedication, commibttement, and constency from the the different processing tools and methods we have >overcomed them, and know how to:
+
+>Create data pipelines from a variety of sources.
+>Apply ETL(extraction-Cleaning-loading) to data through Python functions.
+>Develop a star-based database schema with and correcting data types.
+>Up-to-date data information using SQL queries.
+    
+12. [Liscense Information](#liscense-information)
+This project is open-source and available under the MIT License.
+
+In this project, we create a local PostgreSQL database. We upload data from various sources, process it, create a database schema and run SQL queries.
+Key technologies used: Postgres, AWS (s3), boto3, rest-API, csv, Python (Pandas).
+Abr. Mil = Milestone
+    
