@@ -32,6 +32,11 @@ The data processing scenarios that the project addresses have been implement in 
 3.	A star-based schema database has been created, and then joining 5-dimension tables to the central orders using the primary and the foreign keys making the data queries and analysis easier.
 4.	The Queries data questions from the boss to give up-to-date information on the sales data have been answered.
 
+## MILESTONE 1 : Environment Set up
+![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/c0481770-92d7-4a77-8f3c-c0133deb05d8)
+
+This  milestone consist of one task, creating the development environment in following the instructions how to install the GitHub Bot: After authorisation and the setting up, installation is completed, a new repo named "Multinational-Retail-Data-Centralisation335" was created in GitHub remotely.  This repo Https link will be used to clone it by the mean of "git clone <repo-Https-link>" method to the local machine where the data tansformatiom will take place.  GitHub will be used to track changes of the different codes locally and pushed to remotely save them in GitHub repo.
+
 > [Installation Instructions](#installation-instructions)
 
 This repository can be access from my GitHub page then copy and paste to any  browser to read:
@@ -54,14 +59,6 @@ The code credentials file for this project has been protected in gitignore file 
 - db_creds.yaml (hidden to gitignore)
 - products.csv
 - dim_stores_details.csv
-
-
-## MILESTONE 1 : Environment Set up
-![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/c0481770-92d7-4a77-8f3c-c0133deb05d8)
-
-
-
-This  milestone consist of one task, creating the development environment in following the instructions how to install the GitHub Bot: After authorisation and the setting up, installation is completed, a new repo named "Multinational-Retail-Data-Centralisation335" was created in GitHub remotely.  This repo Https link will be used to clone it by the mean of "git clone <repo-Https-link>" method to the local machine where the data tansformatiom will take place.  GitHub will be used to track changes of the different codes locally and pushed to remotely save them in GitHub repo.
 
 
 ## MILESTUNE 2: Data Extraction and Cleaning from Data Sources
