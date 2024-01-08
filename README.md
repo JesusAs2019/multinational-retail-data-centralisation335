@@ -533,7 +533,7 @@ Finally, the Foreign Keys have been added to the orders_table successfully to ge
 
 ```
 
-
+```
 ## MILESTONE 4: Querying The Data
 
 ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/aecc3dbb-350f-4cf8-bf67-9cbb3c800910)
@@ -742,3 +742,4 @@ LIMIT 5;
  | 2008 | "hours": 2, "minutes": 13, "seconds": 2,  "milliseconds": 438 |
  +------+---------------------------------------------------------------+
 
+```
