@@ -10,12 +10,16 @@
 
 1. [Project Scenario Overview](#project-scenario-overview)
 2. [Project Discription](#project-discription)
-3. [Installation Instructions](#installation-instructions)
-4. [Usage Instructions](#usage-instructions)
-5. [File Structure](#file-structure)
-6. [Data Proccessing](#data-processing)
-7. [Lesson Learned](#lesson-learned)
-8. [Liscense Information](#liscense-information)
+## A- [MILESTONE 1](milestone-1)
+4. [Installation Instructions](#installation-instructions)
+5. [Usage Instructions](#usage-instructions)
+6. [File Structure](#file-structure)
+## B- [MILESTONE 2](milestone-2)
+8. [Data Proccessing](#data-processing)
+## C- [MILESTONE 3](mileston-3)
+## D- [MILESTONE 4](mileston-4)
+10. [Lesson Learned](#lesson-learned)
+11. [Liscense Information](#liscense-information)
 
 
 > [Project Scenario Overview](#project-scenario-overview)
@@ -61,7 +65,7 @@ The code credentials file for this project has been protected in gitignore file 
 - dim_stores_details.csv
 
 
-## MILESTUNE 2: Data Extraction and Cleaning from Data Sources
+## MILESTONE 2: Data Extraction and Cleaning from Data Sources
 ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/4a60825f-b124-44d0-b896-8ea1bf33935e)
 
 
@@ -122,12 +126,14 @@ Step 5:
 Step 6:
  The "dim_date_times" data is available by link. The ".json" response has to be converted into the pandas datagrame. The primary key is "date_uuid".
 
- ## MILESTONE 3: SQL Star_Baseed Schema of the Database
+ ## MILESTONE 3: SQL Star_Based Schema of the Database
  
+ ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/20eb3342-55df-4df4-a7e3-ce64665c5dc6)
 
 
 
-## MILESTONE 4: QUerying The Data
+
+## MILESTONE 4: Querying The Data
 
 ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/aecc3dbb-350f-4cf8-bf67-9cbb3c800910)
 
