@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # multinational-retail-data-centralisation33
 =======
 
@@ -91,7 +90,7 @@ Step 3:
 Finally, to clean each data from all the sources a script named data_cleaning.py containing a class DataCleaning with its cleaning methods were created.
 
 
-##6. [Data Proccessing](#data-processing)
+ [Data Proccessing](data-processing)
 
 1. Data extraction. In "data_extraction.py" we store methods responsible for the upload of data into pandas data frame from different sources.
 
