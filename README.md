@@ -573,6 +573,18 @@ LIMIT 10;
 
 ------sql execute output:
 
+"locality","total_no_stores"
+"Chapletown",    "14"
+"Belper",         "13"
+"Bushey",         "12"
+"Exeter",         "11"
+"Rutherglen",     "10"
+"Arbroath",       "10"
+"High Wycombe",   "10"
+"Surbiton",        "9"
+"Lancing",         "9"
+"Aberdeen",        "9"
+
 #Task 3: Which months produced the lagest amount of sales?
 
 ---
