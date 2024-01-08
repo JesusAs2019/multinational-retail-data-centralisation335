@@ -533,6 +533,8 @@ Finally, the Foreign Keys have been added to the orders_table successfully to ge
 ```
 ![image](C:\Users\vicky\OneDrive\Documents\AiCore_Data-Engineering\Foreign_Keys_Orders_table.png)
 
+![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/9109456c-af70-4467-a211-0c81f87dd5cf)
+
 
 ## MILESTONE 4: Querying The Data
 
