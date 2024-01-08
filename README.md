@@ -538,9 +538,207 @@ Finally, the Foreign Keys have been added to the orders_table successfully to ge
 
 ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/aecc3dbb-350f-4cf8-bf67-9cbb3c800910)
 
-"country_code","total_no_stores"
-"DE","141"
-"GB","266"
-"US","34"
 
+# MILESTONE 4: CREATING THE STAR_BASED SCHEMA DATABASE
+
+---
+	
+#Task 1: How many stores does the business have and in which  countries?
+---
+SELECT country_code, count(*) AS total_no_stores
+FROM dim_store_details
+GROUP BY country_code
+ORDER BY country_code;
+
+---sql execute output:
++-------------+-------------------+
+|"country_code"|"total_no_stores" |
++--------------+----------------- +
+   "DE",             "141"
+   "GB",             "266"
+   "US",             "34"
+
+
+# Task 2: Which locations have the most stores?
+
+---
+	
+SELECT locality, count(*) AS total_no_stores
+FROM dim_store_details
+GROUP BY locality
+ORDER BY total_no_stores DESC
+LIMIT 10;
+
+------sql execute output:
+
+#Task 3: Which months produced the lagest amount of sales?
+
+---
+	
+SELECT
+	ROUND(CAST(SUM(spend) AS numeric), 2) AS total_sales,
+	month
+FROM (
+	SELECT
+		ord.product_quantity * prod.product_price AS spend,
+		dt.month
+	FROM orders_table ord
+	INNER JOIN dim_date_times dt
+		ON ord.date_uuid = dt.date_uuid
+	INNER JOIN dim_products prod
+		ON ord.product_code = prod.product_code
+) x
+GROUP BY month
+ORDER BY total_sales DESC;
+
+---
+
+
+# Task 4: How many sales are coming from Online?
+
+---
+SELECT
+	COUNT(*) AS numbers_of_sales,
+	SUM(product_quantity) AS product_quantity_count,
+	location
+FROM (
+	SELECT
+		ord.product_quantity,
+		CASE
+			WHEN st.store_type = 'Web Portal' THEN 'Web'
+			ELSE 'Offline'
+		END AS location
+	FROM orders_table ord
+	INNER JOIN dim_store_details st
+		ON ord.store_code = st.store_code
+) x
+GROUP BY location
+ORDER BY location DESC;
+---
+
+# Task 5: Find out the total and percentage of sales coming from each of the different store types is given by the following sql syntax code:
+
+	-----	
+SELECT
+	store_type,
+	ROUND(CAST(SUM(sale) AS NUMERIC), 2) AS total_sales,
+	ROUND(CAST(100 * SUM(sale) / total AS NUMERIC), 2) AS "percentage_total(%)"
+FROM (
+	SELECT
+		st.store_type,
+		ord.product_quantity * prod.product_price AS sale
+	FROM orders_table ord
+	INNER JOIN dim_store_details st
+		ON ord.store_code = st.store_code
+	INNER JOIN dim_products prod
+		ON ord.product_code = prod.product_code
+) x
+CROSS JOIN (
+	SELECT SUM(ord.product_quantity * prod.product_price) AS total
+	FROM orders_table ord
+	INNER JOIN dim_products prod
+	ON ord.product_code = prod.product_code
+) y
+GROUP BY x.store_type, y.total
+ORDER BY total_sales DESC;
+---
+
+# Task 6: Is to find in which months and in which years have had the Company has produced the highest cost of sales historically:
+	
+SELECT
+	ROUND(CAST(SUM(sale) AS NUMERIC), 2) AS total_sales,
+	year,
+	month
+FROM (
+	SELECT
+		dt.year,
+		dt.month,
+		ord.product_quantity * prod.product_price AS sale
+	FROM orders_table ord
+	INNER JOIN dim_products prod
+		ON ord.product_code = prod.product_code
+	INNER JOIN dim_date_times dt
+		ON ord.date_uuid = dt.date_uuid
+) x
+GROUP BY year, month
+ORDER BY total_sales DESC
+LIMIT 10;
+
+---
+# Task 7: THe Staff Headcount Query is about to determine the overall staff numbers in each location around the world:
+	
+SELECT
+	SUM(staff_numbers) AS total_staff_numbers,
+	country_code
+FROM dim_store_details
+GROUP BY country_code
+ORDER BY total_staff_numbers DESC;
+
+# Task 8: Which German stores type is saling the most?
+	
+SELECT
+	ROUND(CAST(SUM(sale) AS NUMERIC), 2) AS total_sales,
+	store_type,
+	country_code
+FROM (
+SELECT
+	st.store_type,
+	st.country_code,
+	ord.product_quantity * prod.product_price AS sale
+FROM orders_table ord
+INNER JOIN (
+	SELECT store_code, store_type, country_code
+	FROM dim_store_details
+	WHERE country_code = 'DE'
+	) st
+	ON ord.store_code = st.store_code
+INNER JOIN dim_products prod
+	ON ord.product_code = prod.product_code
+) x
+GROUP BY
+	store_type,
+	country_code
+ORDER BY
+	total_sales;
+----
+	
+#Task 9: The accurate metric for how quickly the company is making sales is determineed by the average time taken between each sale grouped by year.
+
+--------
+ALTER TABLE dim_date_times
+ADD COLUMN time_diff interval;
+
+UPDATE dim_date_times
+SET time_diff = x.time_diff
+FROM (
+  SELECT timestamp, timestamp, LAG(timestamp) OVER (ORDER BY timestamp) AS time_diff
+  FROM dim_date_times
+) AS x
+WHERE dim_date_times.timestamp = x.timestamp;
+
+# After creating the column time difference, the task query on how quickly the Company is making sales is now much more straightforward with the query syntax below:
+----------
+WITH cte AS(
+    SELECT TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD H:M:S:SSS') as datetimes, year FROM dim_date_times
+    ORDER BY datetimes DESC
+), cte2 AS(
+    SELECT 
+        year, 
+        datetimes, 
+        LEAD(datetimes, 1) OVER (ORDER BY datetimes DESC) as time_difference 
+        FROM cte
+) SELECT year, AVG((datetimes - time_difference)) as actual_time_taken FROM cte2
+GROUP BY year
+ORDER BY actual_time_taken DESC
+LIMIT 5;
+-----sql execute is as follow:
+ +------+---------------------------------------------------------------+
+ | year |                           actual_time_taken                   |
+ +------+---------------------------------------------------------------+
+ | 2013 | "hours": 2, "minutes": 17, "seconds": 12, "milliseconds": 793 |
+ | 1993 | "hours": 2, "minutes": 15, "seconds": 35, "milliseconds": 557 |
+ | 2002 | "hours": 2, "minutes": 13, "seconds": 50, "milliseconds": 222 | 
+ | 2022 | "hours": 2, "minutes": 13, "seconds": 6,  "milliseconds": 348 |
+ | 2008 | "hours": 2, "minutes": 13, "seconds": 2,  "milliseconds": 438 |
+ +------+---------------------------------------------------------------+
 
