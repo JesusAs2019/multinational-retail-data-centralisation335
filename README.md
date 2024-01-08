@@ -17,11 +17,12 @@
 7. [Lesson Learned](#lesson-learned)
 8. [Liscense Information](#liscense-information)
 
-1. [Project Scenario Overview](#project-scenario-overview)
+
+> [Project Scenario Overview](#project-scenario-overview)
 
 Working for a worldwide retails multinational company with a vision to foster a more data-driven strategy approach, we are asked to develop a data pipeline so that the organisation huge sales data scatter over diverse data source locations can be simply acceded from one central data repository.
 
-2. [Project Discription](#project-discription)
+> [Project Discription](#project-discription)
 
 This project organised into four milestones aims at the data centralization for a sale products multinational organisation. It implements data engineering processes in creating a data pipeline method: Moving company’s bulky datasets from different data sources to a central database (destination). Before data flows into this central data repository, it underwent some data processing using ETL (extract-transform-load) method — so, by using advanced data engineering tools, data has been gathered, imported, cleaned/wrangling, and uploaded to its destination the central database (known as Sales Data), and finally, from there for an optimized data storage repo and ease access a star-based database schema has been produced for querying and analysis. In developing this complex SQL-star-based data queries from advanced Pandas, Python, PostgreSQL and SQL, this project provides to the production environment (stakeholders…) a content for business holistic valuable awarenesses and decisions making on sales and revenues of the types of the stores and their locations.
 This project is an opportunity to present to the users a real-life data solution practice, from data acquisition to query and analysis.
@@ -31,21 +32,20 @@ The data processing scenarios that the project addresses have been implement in 
 3.	A star-based schema database has been created, and then joining 5-dimension tables to the central orders using the primary and the foreign keys making the data queries and analysis easier.
 4.	The Queries data questions from the boss to give up-to-date information on the sales data have been answered.
 
-
-3. [Installation Instructions](#installation-instructions)
+> [Installation Instructions](#installation-instructions)
 
 This repository can be access from my GitHub page then copy and paste to any  browser to read:
 https://github.com/JesusAs2019/multinational-retail-data-centralisation335.git
 Then if anyone to test or make a contribution to this work he can clone it in his using terminal by typing:
 "git clone https://github.com/example_repository /folder-name"
 
-4. [Usage Instructions](#usage-instructions)
+> [Usage Instructions](#usage-instructions)
 The code credentials file for this project has been protected in gitignore file to secure the sources still, the codes can be run as follow:
 
 1. Run all the codes extraction, cleaning and loading on local engine VS Code terminal.  in "main.ipynb"
 2. The required .sql query can be run from sales_data base file in postgres pgAdmin4.
 
-5. [Repository Files Structure](#repository-files-structure)
+> [Repository Files Structure](#repository-files-structure)
 - .gitignore
 - database_utils.py
 - data_extraction.py
@@ -56,7 +56,7 @@ The code credentials file for this project has been protected in gitignore file 
 - dim_stores_details.csv
 
 
-## Milestone 1
+## MILESTONE 1 : Environment Set up
 ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/c0481770-92d7-4a77-8f3c-c0133deb05d8)
 
 
@@ -64,12 +64,11 @@ The code credentials file for this project has been protected in gitignore file 
 This  milestone consist of one task, creating the development environment in following the instructions how to install the GitHub Bot: After authorisation and the setting up, installation is completed, a new repo named "Multinational-Retail-Data-Centralisation335" was created in GitHub remotely.  This repo Https link will be used to clone it by the mean of "git clone <repo-Https-link>" method to the local machine where the data tansformatiom will take place.  GitHub will be used to track changes of the different codes locally and pushed to remotely save them in GitHub repo.
 
 
-## Milestone 2
+## MILESTUNE 2: Data Extraction and Cleaning from Data Sources
 ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/4a60825f-b124-44d0-b896-8ea1bf33935e)
 
 
 ---
-
 
 Our first mission here is to implement the ETL (Extract-Transform-Load) process; that means extracting all the data needed from the different dat sources, cleaning and loading them to the cental database, the queries and analysis will take place.
 
@@ -96,15 +95,15 @@ Finally, to clean each data from all the sources a script named data_cleaning.py
 
 
    
-3. Data cleaning. In "data_cleaning.py" we develop the class DataCleaning that clean different tables, which we uploaded in "data_extraction.py".
+2. Data cleaning. In "data_cleaning.py" we develop the class DataCleaning that clean different tables, which we uploaded in "data_extraction.py".
 
 
 
-4. Uploading data into the database. We write DatabaseConnector class "database_utils.py", which initiates the database engine based on credentials provided in ".yml" file.
+3. Uploading data into the database. We write DatabaseConnector class "database_utils.py", which initiates the database engine based on credentials provided in ".yml" file.
 
 
 
-6. "main.py" contains methods, which allow uploading data directly into the local database.
+4. "main.py" contains methods, which allow uploading data directly into the local database.
 
 ## Data Processing steps:
 
@@ -126,12 +125,12 @@ Step 5:
 Step 6:
  The "dim_date_times" data is available by link. The ".json" response has to be converted into the pandas datagrame. The primary key is "date_uuid".
 
- MILESTONE 3:
+ ## MILESTONE 3: SQL Star_Baseed Schema of the Database
  
 
 
 
-MILESTONS 4:
+## MILESTONE 4: QUerying The Data
 
 ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/aecc3dbb-350f-4cf8-bf67-9cbb3c800910)
 
