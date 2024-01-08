@@ -531,48 +531,6 @@ INSERT INTO dim_store_details(store_code)
 Finally, the Foreign Keys have been added to the orders_table successfully to get the relations between the orders_table to the other 5 dimension tables (respectively: orders_table_product_code_fkey, orders_table_card_number_fkey, orders_table_user_uuid_fkey, orders_table_date_uuid_fkey, orders_table_store_code_fkey) in form of SQL star_based SCHEMA (reference database_star_based_schema.pgerd).
 
 
-#Task 9
-Sales would like the get an accurate metric for how quickly the company is making sales.
-Determine the average time taken between each sale grouped by year, the query should return the following information:
- +------+-------------------------------------------------------+
- | year |                           actual_time_taken           |
- +------+-------------------------------------------------------+
- | 2013 | "hours": 2, "minutes": 17, "seconds": 12, "millise... |
- | 1993 | "hours": 2, "minutes": 15, "seconds": 35, "millise... |
- | 2002 | "hours": 2, "minutes": 13, "seconds": 50, "millise... | 
- | 2022 | "hours": 2, "minutes": 13, "seconds": 6,  "millise... |
- | 2008 | "hours": 2, "minutes": 13, "seconds": 2,  "millise... |
- 
---------
-ALTER TABLE dim_date_times
-ADD COLUMN time_diff interval;
-
-UPDATE dim_date_times
-SET time_diff = x.time_diff
-FROM (
-  SELECT timestamp, timestamp, LAG(timestamp) OVER (ORDER BY timestamp) AS time_diff
-  FROM dim_date_times
-) AS x
-WHERE dim_date_times.timestamp = x.timestamp;
-
-# After creation of column time difference, task query much more straightforward
-----------
-WITH cte AS(
-    SELECT TO_TIMESTAMP(CONCAT(year, '-', month, '-', day, ' ', timestamp), 'YYYY-MM-DD H:M:S:SSS') as datetimes, year FROM dim_date_times
-    ORDER BY datetimes DESC
-), cte2 AS(
-    SELECT 
-        year, 
-        datetimes, 
-        LEAD(datetimes, 1) OVER (ORDER BY datetimes DESC) as time_difference 
-        FROM cte
-) SELECT year, AVG((datetimes - time_difference)) as actual_time_taken FROM cte2
-GROUP BY year
-ORDER BY actual_time_taken DESC
-LIMIT 10;
------------
-
-
 ```
 
 
