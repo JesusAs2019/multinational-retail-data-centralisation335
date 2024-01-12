@@ -117,27 +117,29 @@ Finally, to clean each data from all the sources a script named data_cleaning.py
 There are in total six (6) sources of data.
 
 Step 1:
- Remote Postgres database in AWS Cloud. The table "order_table" is the data of the most interest for the client as it contains actual sales information. In the table, we need to use the following fields "date_uuid", "user_uuid", "card_number", "store_code", "product_code" and "product_quantity". The first 5 fields will become foreign keys in our database, therefore we need to clean these columns from all Nans and missing values. The "product_quantity" field has to be an integer.
+Dealing here with the remote Postgres database in AWS Cloud. The "order_table" table is the core data, and is of the most interest for the Company as it contains the genuine and, updated sales information. In this table the main columns are "user_uuid", "date_uuid", "card_number", "product_code", "store_code" and "product_quantity". The first 5 columns are used as foreign keys in the database schema, and these columns must be cleaned from all the Nans, duplicate, and missing values. The column product_quantity" field has to be an integer.
 
 Step 2:
- Remote Postgres database in AWS Cloud. The user's data  "dim_users" table. This table is also stored in the remote database, so we use the same upload technics as in the previous case. The primary key here is the "user_uuid" field.
+ In the remote Postgres database in AWS Cloud there is the user's data table and called "dim_users" table and stored in sales_data database in pgAdmin4 postgres. The column "user_uuid" is used as primary key.
+ 
 Step 3:
- Public link in AWS cloud. The "dim_card_details" is accessible by a link from the s3 server and stored as a ".pdf" file. We handle reading ".pdf" using the "tabula" package. The primary key is the card number. The card number has to be converted into a string to avoid possible problems and cleaned from "?" artefacts.
+ Public link in AWS cloud to extract and clean the table card_details accessible from the pdf link in the s3 server using the tabula package. Uploaded and stored in pgAdmin4 prostgres as dim_card_details under sales_data database. The column card_number has been used as primary key. The card_number column has be cleaned from '?' artefacts, and to be converted into a string to avoid possible conflicts.
 
 Step 4:
- The AWS-s3 bucket. The "dim_product" table. We utilise the boto3 package to download this data. The primary key is the "product code" field. The field "product_price" has to be converted into float number and the field "weight" has to convert into grams concerning cases like ("kg", "oz", "l", "ml").
+ The AWS-s3 bucket contains the table products, and the boto3 package has been used to download its data. After extraction, and cleaning this table was loaded to the sales_data database as "dim_products" table. The column "product_code" is used to set the primary key. Finally, the column 'product_price' has been converted into float number and the column "weight" with the units ml, oz, lb, and g were converted into kg.
 
 Step 5:
- The restful-API.  The "dim_store_details" data is available by the GET method. The ".json" response has to be converted into the pandas dataframe. The primary key field is "store_code".
+ The table store_details stored in restful-API was extracted using the GET method, and the '.json' file response was returned as pandas dataframe. THis table was uploaded to pgAdimin 4 as "dim_store_details" in sales_data database, and the column "store_code" is used to set the primary key.
+
 Step 6:
- The "dim_date_times" data is available by link. The ".json" response has to be converted into the pandas datagrame. The primary key is "date_uuid".
+ The date times table was extracted from the s3 link, and cleaned using advanced python methods, also the .jason response was returned to a dataframe pandas. It was finally uploaded to the sales_data database using the upload engine method as all the tables in that database ubnder the name 'dim_date_times' in pgAdmin4. The column 'date_uuid is used to set the primary key.
 
  ## MILESTONE 3: SQL Star_Based Schema of the Database
  
  ![image](https://github.com/JesusAs2019/multinational-retail-data-centralisation335/assets/56179535/20eb3342-55df-4df4-a7e3-ce64665c5dc6)
 
 ```sql
-MILESTONE 3:
+
 --- Task 1: Casting the column of the orders_table to the correct data types
 
 SELECT length(max(cast(card_number as Text)))
@@ -203,7 +205,7 @@ WHERE user_uuid NOT IN (SELECT user_uuid from dim_users);
 SELECT * FROM orders_table
 WHERE user_uuid NOT IN (SELECT dim_users.user_uuid FROM dim_users);
 
-Task 2: Casting the column of the dim_users_table to the correct data types
+---Task 2: Casting the column of the dim_users_table to the correct data types
 
 ALTER TABLE dim_users
     ALTER COLUMN first_name TYPE VARCHAR(255),
@@ -305,7 +307,7 @@ Then the data types of the dim_stores_details table have been set corresponding 
 | continent           | TEXT              | VARCHAR(255)           |
 +---------------------+-------------------+------------------------+
 
-Task 4: Changes and updates in the dim_products table to ease the delivery team work have been made as follow:
+---Task 4: Changes and updates in the dim_products table to ease the delivery team work have been made as follow:
 
  -- Removing £ sign in product_price
 UPDATE dim_products
@@ -780,3 +782,4 @@ Key technologies used: Postgres, AWS (s3), boto3, rest-API, csv, Python (Pandas)
 Abr. Mil = Milestone
 
 13. [Acknowledgement](#acknowledgement)    
+> My gratitude to the AiCore engineers and support team for their invaluable dedicated support and guidance. They have continuously provided assistance and were always there willing and passionate to help in any way as they could all over the project.
