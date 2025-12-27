@@ -767,7 +767,7 @@ LIMIT 5;
 ```
 10. [Lesson Learned](#lesson-learned)
 
-This project helped me understand really the duty of Data Engineer and his daily challenges as developping Data Engineering skills through real-world practical applications is time consuming with constant methods reviews and iterations for to make it works complex code syntax are path with many challenges; therefore, with dedication, commibttement, and constency from the the different processing tools and methods we have >overcomed them, and know how to:
+This project helped me understand really the duty of Data Engineer and his daily challenges as developping Data Engineering skills through real-world practical applications is time consuming with constant methods reviews and iterations for to make it works complex code syntax are path with many challenges; therefore, with dedication, committement, and constency using the right Data Engineering processing tools and methods we have - overcomed them, acquiring and mastering the skills and expertise on "The Know How" to:
 
 >Create data pipelines from a variety of sources.
 >Apply ETL(extraction-Cleaning-loading) to data through Python functions.
